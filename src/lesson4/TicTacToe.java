@@ -5,7 +5,8 @@ import java.util.Scanner;
 
 public class TicTacToe {
 
-    private static final int SIZE = 3;
+    private static final int SIZE = 5;
+    private static final int DOTS_TO_WIN = 4;
     private static final char[][] map = new char[SIZE][SIZE];
 
     private static final char DOT_EMPTY = '•';
@@ -68,20 +69,35 @@ public class TicTacToe {
     }
 
     private static boolean checkWin(char symbol) {
-        //check rows
-        if (map[0][0] == symbol && map[0][1] == symbol && map[0][2] == symbol) return true;
-        if (map[1][0] == symbol && map[1][1] == symbol && map[1][2] == symbol) return true;
-        if (map[2][0] == symbol && map[2][1] == symbol && map[2][2] == symbol) return true;
+        if (checkRowsAndCols(symbol)) return true;
+        return checkDiagonals(symbol);
+    }
 
-        // check columns
-        if (map[0][0] == symbol && map[1][0] == symbol && map[2][0] == symbol) return true;
-        if (map[0][1] == symbol && map[1][1] == symbol && map[2][1] == symbol) return true;
-        if (map[0][2] == symbol && map[1][2] == symbol && map[2][2] == symbol) return true;
+    private static boolean checkDiagonals(char symbol) {
+        int mainDiagCounter = 0;
+        int sideDiagCounter = 0;
+        for (int i = 0; i < SIZE; i++) {
+            mainDiagCounter = (map[i][i] == symbol) ? mainDiagCounter + 1 : 0;
+            sideDiagCounter = (map[i][map.length - 1 - i] == symbol) ? sideDiagCounter + 1 : 0;
+            if (mainDiagCounter == DOTS_TO_WIN || sideDiagCounter == DOTS_TO_WIN) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-        // check diagonals
-        if (map[0][0] == symbol && map[1][1] == symbol && map[2][2] == symbol) return true;
-        if (map[0][2] == symbol && map[1][1] == symbol && map[2][0] == symbol) return true;
-
+    private static boolean checkRowsAndCols(char symbol) {
+        for (int i = 0; i < SIZE; i++) {
+            int rowCounter = 0;
+            int colCounter = 0;
+            for (int j = 0; j < SIZE; j++) {
+                rowCounter = (map[i][j] == symbol) ? rowCounter + 1 : 0;
+                colCounter = (map[j][i] == symbol) ? colCounter + 1 : 0;
+                if (rowCounter == DOTS_TO_WIN || colCounter == DOTS_TO_WIN) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -112,19 +128,54 @@ public class TicTacToe {
             colIndex = SCANNER.nextInt() - 1;
         } while (!isCellValid(rowIndex, colIndex, DOT_X));
 
-        map[rowIndex][colIndex] = DOT_X;
+        setCell(rowIndex, colIndex, DOT_X);
     }
 
     private static void computerTurn() {
-        int rowIndex = -1;
-        int colIndex = -1;
-        Random rand = new Random();
-        do {
-            rowIndex = rand.nextInt(SIZE);
-            colIndex = rand.nextInt(SIZE);
-        } while (!isCellValid(rowIndex, colIndex, DOT_O));
+        int[] cell = getNextCellToWin(DOT_O);
+        if (cell == null) {
+            cell = getNextCellToWin(DOT_X);
+            if (cell == null) {
+                cell = getRandomEmptyCell(DOT_O);
+            }
+        }
+        int rowIndex = cell[0];
+        int colIndex = cell[1];
 
-        map[rowIndex][colIndex] = DOT_O;
+        setCell(rowIndex, colIndex, DOT_O);
+    }
+
+    private static int[] getRandomEmptyCell(char symbol) {
+        int rowIndex, colIndex;
+        Random random = new Random();
+        do {
+            rowIndex = random.nextInt(SIZE);
+            colIndex = random.nextInt(SIZE);
+        } while (!isCellValid(rowIndex, colIndex, symbol));
+        return new int[] {rowIndex, colIndex};
+    }
+
+    private static int[] getNextCellToWin(char symbol) {
+        for (int rowIndex = 0; rowIndex < map.length; rowIndex++) {
+            for (int colIndex = 0; colIndex < map[rowIndex].length; colIndex++) {
+                if (map[rowIndex][colIndex] == DOT_EMPTY && isGameMoveWinning(rowIndex, colIndex, symbol)) {
+                    return new int[]{rowIndex, colIndex};
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static boolean isGameMoveWinning(int rowIndex, int colIndex, char symbol) {
+        setCell(rowIndex, colIndex, symbol);
+        boolean result = checkWin(symbol);
+        setCell(rowIndex, colIndex, DOT_EMPTY);
+        return result;
+    }
+
+    private static void setCell(int rowIndex, int colIndex, char symbol) {
+        map[rowIndex][colIndex] = symbol;
     }
 
     private static boolean isCellValid(int rowIndex, int colIndex, char symbol) {
