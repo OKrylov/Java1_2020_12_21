@@ -13,8 +13,7 @@ public class Homework {
     public static void main(String[] args) {
         Employee[] employees = new Employee[EMPLOYEE_COUNT];
         for (int i = 0; i < EMPLOYEE_COUNT; i++) {
-            Employee employee = createEmployee(i);
-            employees[i] = employee;
+            employees[i] = createEmployee(i);
         }
 
         for (Employee employee : employees) {
@@ -22,6 +21,19 @@ public class Homework {
                 employee.printInfo();
             }
         }
+
+        intertnStringExample();
+    }
+
+    private static void intertnStringExample() {
+        //        String str1 = new String("str");
+//        String str2 = new String("str");
+//        str1 = str1.intern();
+//        str2 = str2.intern();
+        String str1 = "str";
+        String str2 = "str";
+        System.out.println(str1 == str2);
+        System.out.println(str1.equals(str2));
     }
 
     private static Employee createEmployee(int i) {
