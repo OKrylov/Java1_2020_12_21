@@ -30,4 +30,12 @@ public class Plate {
     public void decreaseFood(int appetite) {
         this.food -= appetite;
     }
+
+    public void addFood(int foodCount) {
+        this.food += foodCount;
+    }
+
+    public boolean isFoodEnough(int foodCount) {
+        return getFood() >= foodCount;
+    }
 }
